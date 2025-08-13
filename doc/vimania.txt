@@ -1,0 +1,260 @@
+*vimania.txt*                     Advanced URI handling for modern Neovim
+
+Author: Converted from vimania-uri-rs
+License: MIT
+
+==============================================================================
+CONTENTS                                                    *vimania-contents*
+
+1. Introduction ........................... |vimania-introduction|
+2. Installation ........................... |vimania-installation|
+3. Configuration .......................... |vimania-configuration|
+4. Commands ............................... |vimania-commands|
+5. Functions .............................. |vimania-functions|
+6. Key Mappings ........................... |vimania-mappings|
+7. Supported Links ........................ |vimania-links|
+8. Security ............................... |vimania-security|
+9. Troubleshooting ........................ |vimania-troubleshooting|
+
+==============================================================================
+1. INTRODUCTION                                         *vimania-introduction*
+
+vimania-lua is a pure Lua reimplementation of vimania-uri-rs, providing 
+lightning-fast URI navigation with zero external dependencies except 
+plenary.nvim.
+
+The plugin allows you to navigate various URI types in Neovim using the `go` 
+command, including local files, web URLs, internal document links, and 
+reference-style links.
+
+==============================================================================
+2. INSTALLATION                                         *vimania-installation*
+
+Requirements:~
+- Neovim 0.7+
+- plenary.nvim
+
+Using lazy.nvim:~
+>
+    {
+      'your-username/vimania-lua',
+      dependencies = { 'nvim-lua/plenary.nvim' },
+      config = function()
+        require('vimania').setup()
+      end
+    }
+<
+
+Using packer.nvim:~
+>
+    use {
+      'your-username/vimania-lua',
+      requires = { 'nvim-lua/plenary.nvim' },
+      config = function()
+        require('vimania').setup()
+      end
+    }
+<
+
+==============================================================================
+3. CONFIGURATION                                       *vimania-configuration*
+
+The plugin can be configured by calling the setup function:
+>
+    require('vimania').setup({
+      extensions = { '.md', '.txt', '.rst', '.py' },
+      key_mapping = 'go',
+      timeout = 3000,
+      log_level = 'INFO',
+      browser_cmd = nil,
+      security = {
+        block_local_networks = true,
+        allowed_schemes = { 'http', 'https' }
+      }
+    })
+<
+
+Configuration options:~
+
+*g:vimania_config.extensions*
+    List of file extensions that should be opened in Neovim.
+    Files with other extensions will be opened with the OS default application.
+    Default: { '.md', '.txt', '.rst', '.py', '.conf', '.sh', '.json', '.yaml', '.yml' }
+
+*g:vimania_config.key_mapping*
+    Key mapping for the main URI handling function.
+    Set to `nil` to disable automatic mapping.
+    Default: 'go'
+
+*g:vimania_config.timeout*
+    Timeout for HTTP requests in milliseconds.
+    Default: 3000
+
+*g:vimania_config.log_level*
+    Logging level (DEBUG, INFO, WARNING, ERROR).
+    Default: 'INFO'
+
+*g:vimania_config.browser_cmd*
+    Custom command to open URLs in browser.
+    If nil, uses OS default (open/xdg-open/start).
+    Default: nil
+
+*g:vimania_config.security.block_local_networks*
+    Whether to block access to local/internal networks for security.
+    Default: true
+
+*g:vimania_config.security.allowed_schemes*
+    List of allowed URL schemes.
+    Default: { 'http', 'https' }
+
+==============================================================================
+4. COMMANDS                                                 *vimania-commands*
+
+*:VimaniaHandleUri*
+    Handle the URI at the current cursor position.
+
+*:VimaniaGetUrlTitle* {url}
+    Get the title of the specified URL and set it in g:vimania_url_title.
+
+*:VimaniaPasteMdLink*
+    Paste a markdown link using the URL from the system clipboard.
+
+*:VimaniaFindLinkNext*
+    Find and jump to the next link in the current buffer.
+
+*:VimaniaFindLinkPrev*
+    Find and jump to the previous link in the current buffer.
+
+*:VimaniaEdit* {path}[#{anchor}]
+    Edit a file with optional anchor navigation.
+
+*:VimaniaTestHttp*
+    Test the HTTP client functionality.
+
+Compatibility commands:~
+
+*:HandleMd*
+    Alias for |:VimaniaHandleUri|
+
+*:GetURLTitle* {url}
+    Alias for |:VimaniaGetUrlTitle|
+
+==============================================================================
+5. FUNCTIONS                                               *vimania-functions*
+
+*vimania.setup(*{opts}*)*
+    Initialize the plugin with the given configuration.
+
+*vimania.handle_uri()*
+    Handle the URI at the current cursor position.
+
+*vimania.get_url_title(*{url}*)*
+    Get the title of the specified URL.
+
+*vimania.paste_md_link()*
+    Paste a markdown link from the clipboard.
+
+*vimania.find_next_link()*
+    Find the next link in the buffer.
+
+*vimania.find_prev_link()*
+    Find the previous link in the buffer.
+
+==============================================================================
+6. KEY MAPPINGS                                             *vimania-mappings*
+
+Default mappings:~
+
+*go*                    Handle URI at cursor position
+*<leader>vl*            Paste markdown link from clipboard
+
+Plug mappings:~
+
+*<Plug>(VimaniaHandleUri)*
+    Handle URI at cursor position
+
+*<Plug>(VimaniaPasteMdLink)*
+    Paste markdown link from clipboard
+
+*<Plug>(VimaniaFindLinkNext)*
+    Find next link in buffer
+
+*<Plug>(VimaniaFindLinkPrev)*
+    Find previous link in buffer
+
+==============================================================================
+7. SUPPORTED LINKS                                            *vimania-links*
+
+Local text links:~
+    [foo](second.md) - Opens file in Neovim
+    [foo](second.md:30) - Opens file and jumps to line 30
+    [foo](second.md#anchor) - Opens file and jumps to anchor
+
+URL links:~
+    [google](https://google.com) - Opens in browser
+
+Internal links:~
+    [Link Text](#Target) - Jumps to heading "# Target"
+
+Reference style links:~
+    [foo][label] - Uses reference definition [label]: url
+
+Implicit name links:~
+    [foo][] - Uses "foo" as the reference label
+
+Custom IDs:~
+    ## Heading {: #custom-id} - Can be referenced as #custom-id
+
+Pelican links:~
+    [link](|filename|./file.md) - Handles pelican-style links
+    [link]({filename}./file.md) - Alternative pelican format
+
+==============================================================================
+8. SECURITY                                                 *vimania-security*
+
+The plugin includes built-in security features:
+
+SSRF Protection:~
+- Blocks access to local networks (127.0.0.1, localhost, 192.168.x.x, etc.)
+- Only allows HTTP and HTTPS schemes by default
+- Validates URLs before making requests
+
+URL Validation:~
+- Checks for malformed URLs
+- Prevents access to file:// and other potentially dangerous schemes
+- Configurable allow/block lists
+
+==============================================================================
+9. TROUBLESHOOTING                                   *vimania-troubleshooting*
+
+Common issues and solutions:
+
+Plugin not working:~
+    - Ensure plenary.nvim is installed and loaded
+    - Check that Neovim version is 0.7+
+    - Verify the plugin is properly initialized with setup()
+
+HTTP requests failing:~
+    - Check network connection and firewall settings
+    - Verify URL is accessible from command line (curl)
+    - Check security settings aren't blocking the request
+
+File paths not opening:~
+    - Verify the file exists and has appropriate permissions
+    - Check file extension is in the extensions list
+    - Ensure file path is correctly formatted
+
+Key mapping conflicts:~
+    - Check for conflicting mappings with :nmap go
+    - Use custom key mapping or disable automatic mapping
+
+Debug mode:~
+    Enable debug logging for troubleshooting:
+>
+    require('vimania').setup({
+      log_level = 'DEBUG'
+    })
+<
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:
