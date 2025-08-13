@@ -4,7 +4,7 @@
 
 A pure Lua reimplementation of the [vimania-uri-rs](https://github.com/sysid/vimania-uri-rs) plugin, providing lightning-fast URI navigation with zero external dependencies except plenary.nvim.
 
-## ✨ Features
+## Features
 
 - **Pure Lua Implementation**: No Python, Rust, or system dependencies (except plenary.nvim)
 - **Universal URI Support**: Handle web URLs, local files, internal links, and more
@@ -15,7 +15,7 @@ A pure Lua reimplementation of the [vimania-uri-rs](https://github.com/sysid/vim
 - **Modern Architecture**: Native Neovim Lua APIs with async HTTP support
 - **Zero Startup Overhead**: No external processes or compilation required
 
-## 🚀 Why vimania-lua?
+## Why vimania-lua?
 
 This is a complete rewrite of vimania-uri-rs in pure Lua, offering:
 - **Faster Installation**: No build process or external dependencies
@@ -23,7 +23,7 @@ This is a complete rewrite of vimania-uri-rs in pure Lua, offering:
 - **Easier Maintenance**: Single language codebase with modern Lua patterns
 - **Enhanced Performance**: Leverages Neovim's built-in optimizations
 
-## 📦 Installation
+## Installation
 
 ### Prerequisites
 - Neovim 0.7+
@@ -64,7 +64,7 @@ Then in your `init.lua`:
 require('vimania').setup()
 ```
 
-## 🎯 Quick Start
+## Quick Start
 
 **It's simple**: Position your cursor on any URI and press `go`.
 
@@ -74,7 +74,7 @@ go
 
 That's it! The plugin intelligently determines how to handle the URI based on its type and context.
 
-## 📝 Supported Link Types
+## Supported Link Types
 
 ### Local Text Links
 `[foo](second.md)` will be opened inside Neovim.
@@ -156,7 +156,7 @@ vim.keymap.set('n', '<leader>u', function() require('vimania').handle_uri() end,
 vim.keymap.set('n', '<leader>vl', function() require('vimania').paste_md_link() end, { desc = 'Paste MD link' })
 ```
 
-## 🔧 Commands
+## Commands
 
 - `:VimaniaHandleUri` - Handle URI at cursor position
 - `:VimaniaGetUrlTitle <url>` - Get title for URL and set vim variable
@@ -171,7 +171,7 @@ For compatibility with the original plugin:
 - `:HandleMd` - Same as `:VimaniaHandleUri`
 - `:GetURLTitle <url>` - Same as `:VimaniaGetUrlTitle`
 
-## 🎮 Default Key Mappings
+## Default Key Mappings
 
 - `go` - Handle URI at cursor (`<Plug>(VimaniaHandleUri)`)
 - `<leader>vl` - Paste markdown link from clipboard (`<Plug>(VimaniaPasteMdLink)`)
@@ -180,7 +180,7 @@ Additional plug mappings available:
 - `<Plug>(VimaniaFindLinkNext)` - Find next link
 - `<Plug>(VimaniaFindLinkPrev)` - Find previous link
 
-## 🔒 Security Features
+## Security Features
 
 ### SSRF Protection
 The plugin includes built-in protection against Server-Side Request Forgery (SSRF) attacks:
@@ -199,7 +199,7 @@ require('vimania').setup({
 })
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Running Tests
 
@@ -245,15 +245,36 @@ nvim tests/test_data/test.md
 
 ### Test Coverage
 
-The test suite covers:
-- ✅ **URL parsing and validation** (including SSRF protection)
-- ✅ **File path parsing** (line numbers, anchors, expansions)
-- ✅ **Markdown link parsing** (direct, reference, internal links)
-- ✅ **Utility functions** (anchor conversion, network detection)
-- ✅ **Security features** (local network blocking, scheme validation)
-- ✅ **Manual integration tests** (comprehensive test document)
+The comprehensive test suite includes:
 
-## 🐛 Troubleshooting
+**Core Functionality Tests:**
+- **URL parsing and validation** (including SSRF protection)
+- **File path parsing** (line numbers, anchors, expansions)
+- **Markdown link parsing** (direct, reference, internal links)
+- **Utility functions** (anchor conversion, network detection)
+- **Security features** (local network blocking, scheme validation)
+
+**Parser-Specific Tests:**
+- **Cursor position simulation** - Tests markdown links at 50+ different cursor positions
+- **Multi-link lines** - Multiple markdown links on same line
+- **Edge cases** - Malformed links, nested brackets, special characters
+- **Priority testing** - Verifies markdown links take precedence over standalone URLs
+- **Reference links** - Both explicit `[text][ref]` and implicit `[text][]` formats
+
+**Real-World Scenarios:**
+- **GitHub link reproduction** - Exact test case from user's `/tmp/x.md` file
+- **README.md patterns** - Link lists, documentation, and project files
+- **Blog content** - Inline links within flowing text
+- **Complex URLs** - Query parameters, fragments, unicode, spaces
+
+**Test Files:**
+- `test_utils.lua` - Utility function tests
+- `test_parser.lua` - Basic parser functionality  
+- `test_parser_comprehensive.lua` - Extensive cursor position testing
+- `test_link_selection.lua` - Internal function validation
+- `test_real_world_scenarios.lua` - End-to-end integration tests
+
+## Troubleshooting
 
 ### Debug Mode
 Enable debug logging to troubleshoot issues:
@@ -273,7 +294,7 @@ require('vimania').setup({
 
 **Key mapping conflicts**: Check for conflicting mappings with `:nmap go`.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please:
 
@@ -283,12 +304,11 @@ Contributions are welcome! Please:
 4. Run the test suite
 5. Submit a pull request
 
-## 📄 License
+## License
 
 MIT License - see LICENSE file for details.
 
-## 🙏 Credits
+## Credits
 
 - Original inspiration from [vimania-uri-rs](https://github.com/sysid/vimania-uri-rs)
 - Built with [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
-- URI handling based on work by Christopher Prohm (mdnav)# vimania-lua

@@ -1,0 +1,19 @@
+[tool.bumpversion]
+current_version = "0.1.1"
+commit = true
+tag = false
+message = "Bump version to {new_version}"
+
+[tool.bumpversion.file_patterns]
+"VERSION" = [
+    {search = "{current_version}", replace = "{new_version}"},
+]
+"README.md" = [
+    {search = "vimania-lua v{current_version}", replace = "vimania-lua v{new_version}"},
+]
+
+[[tool.bumpversion.files]]
+filename = "VERSION"
+
+#[[tool.bumpversion.files]]
+#filename = "README.md"
