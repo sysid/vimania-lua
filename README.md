@@ -2,37 +2,31 @@
 
 **Advanced URI Handling for Modern Neovim**
 
-A pure Lua reimplementation of the [vimania-uri-rs](https://github.com/sysid/vimania-uri-rs) plugin, providing lightning-fast URI navigation with zero external dependencies except plenary.nvim.
+A pure Lua re-implementation of the [vimania-uri-rs](https://github.com/sysid/vimania-uri-rs)
+plugin, providing lightning-fast URI navigation with zero external dependencies except
+plenary.nvim.
 
-## Features
-
-- **Pure Lua Implementation**: No Python, Rust, or system dependencies (except plenary.nvim)
 - **Universal URI Support**: Handle web URLs, local files, internal links, and more
 - **Smart Markdown Integration**: Auto-fetch page titles for reference-style links
 - **Precise Navigation**: Jump to specific headings, line numbers, or anchors
 - **Security First**: Built-in SSRF protection and comprehensive security auditing
 - **Extensive Format Support**: Open HTML, DOCX, PPTX, images, audio, and more
-- **Modern Architecture**: Native Neovim Lua APIs with async HTTP support
-- **Zero Startup Overhead**: No external processes or compilation required
 
-## Why vimania-lua?
+## Why?
 
-This is a complete rewrite of vimania-uri-rs in pure Lua, offering:
-- **Faster Installation**: No build process or external dependencies
-- **Better Integration**: Native Neovim APIs and async support
-- **Easier Maintenance**: Single language codebase with modern Lua patterns
-- **Enhanced Performance**: Leverages Neovim's built-in optimizations
+While Vim's native `gx` command and existing plugins provide basic URI handling, they often fall short in terms of:
+- **Performance**: Slow startup times and laggy URL processing
+- **Features**: Limited format support and navigation capabilities  
+- **Security**: No protection against malicious URLs
+
+vimania-lua addresses all these limitations with a modern, high-performance solution.
 
 ## Installation
-
-### Prerequisites
-- Neovim 0.7+
-- [plenary.nvim](https://github.com/nvim-lua/plenary.nvim)
 
 ### Using lazy.nvim
 ```lua
 {
-  'your-username/vimania-lua',
+  'sysid/vimania-lua',
   dependencies = { 'nvim-lua/plenary.nvim' },
   config = function()
     require('vimania').setup({
@@ -40,23 +34,6 @@ This is a complete rewrite of vimania-uri-rs in pure Lua, offering:
     })
   end
 }
-```
-
-### Using packer.nvim
-```lua
-use {
-  'your-username/vimania-lua',
-  requires = { 'nvim-lua/plenary.nvim' },
-  config = function()
-    require('vimania').setup()
-  end
-}
-```
-
-### Using vim-plug
-```vim
-Plug 'nvim-lua/plenary.nvim'
-Plug 'your-username/vimania-lua'
 ```
 
 Then in your `init.lua`:
@@ -73,6 +50,37 @@ go
 ```
 
 That's it! The plugin intelligently determines how to handle the URI based on its type and context.
+
+### Link Detection
+
+In normal mode in a Markdown document, type `go` while curser is on markdown-link.
+
+The following links will be handled (the possible cursor positions are indicated by `^`):
+
+    Local text links: [link](foo.md) will be opened inside vim. 
+                      ^^^^^^^^^^^^^^
+    If target contains line number as in [link](foo.md:30), the line will be jumped to. 
+    Also anchors are supported, for example [link](foo.md#anchor)
+
+    This [link](https://example.com) will be opened inside the browser.
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+    This $HOME/dir will be opened inside OS file browser
+         ^^^^^^^^^
+
+    This $HOME/dir/present.pptx will open in Powerpoint
+         ^^^^^^^^^^^^^^^^^^^^^^
+
+    [link](example.pdf) will be opened in pdf reader
+    ^^^^^^^^^^^^^^^^^^^
+
+    Document internal linking works, too: to link to the heading Usage, use
+    this [link](#usage).
+         ^^^^^^^^^^^^^^
+
+    Reference style [links][ref-style-link] will open http://example.com in browser
+                    ^^^^^^^^^^^^^^^^^^^^^^^
+    [ref-style-link]: http://example.com
 
 ## Supported Link Types
 
@@ -243,56 +251,14 @@ nvim tests/test_data/test.md
 :VimaniaPasteMdLink
 ```
 
-### Test Coverage
-
-The comprehensive test suite includes:
-
-**Core Functionality Tests:**
-- **URL parsing and validation** (including SSRF protection)
-- **File path parsing** (line numbers, anchors, expansions)
-- **Markdown link parsing** (direct, reference, internal links)
-- **Utility functions** (anchor conversion, network detection)
-- **Security features** (local network blocking, scheme validation)
-
-**Parser-Specific Tests:**
-- **Cursor position simulation** - Tests markdown links at 50+ different cursor positions
-- **Multi-link lines** - Multiple markdown links on same line
-- **Edge cases** - Malformed links, nested brackets, special characters
-- **Priority testing** - Verifies markdown links take precedence over standalone URLs
-- **Reference links** - Both explicit `[text][ref]` and implicit `[text][]` formats
-
-**Real-World Scenarios:**
-- **GitHub link reproduction** - Exact test case from user's `/tmp/x.md` file
-- **README.md patterns** - Link lists, documentation, and project files
-- **Blog content** - Inline links within flowing text
-- **Complex URLs** - Query parameters, fragments, unicode, spaces
-
-**Test Files:**
-- `test_utils.lua` - Utility function tests
-- `test_parser.lua` - Basic parser functionality  
-- `test_parser_comprehensive.lua` - Extensive cursor position testing
-- `test_link_selection.lua` - Internal function validation
-- `test_real_world_scenarios.lua` - End-to-end integration tests
-
 ## Troubleshooting
 
-### Debug Mode
 Enable debug logging to troubleshoot issues:
 ```lua
 require('vimania').setup({
   log_level = 'DEBUG'
 })
 ```
-
-### Common Issues
-
-**Plugin not working**: Make sure plenary.nvim is installed and loaded before vimania.
-
-**HTTP requests failing**: Check your network connection and firewall settings.
-
-**File paths not opening**: Verify the file exists and you have appropriate permissions.
-
-**Key mapping conflicts**: Check for conflicting mappings with `:nmap go`.
 
 ## Contributing
 
