@@ -37,16 +37,29 @@ function M.should_open_in_nvim(file_path)
     return true -- Default to opening in nvim if no extensions specified
   end
   
-  local ext = vim.fn.fnamemodify(file_path, ':e')
+  -- Parse file path to remove anchors before checking extension
+  local utils = require('vimania.utils')
+  local parsed = utils.parse_file_path(file_path)
+  local clean_path = parsed.path
+  
+  -- Debug logging
+  print(string.format("[DEBUG] should_open_in_nvim: original='%s', parsed='%s'", file_path, clean_path))
+  
+  local ext = vim.fn.fnamemodify(clean_path, ':e')
   if ext and ext ~= '' then
     ext = '.' .. ext
+    print(string.format("[DEBUG] Extension found: '%s'", ext))
     for _, allowed_ext in ipairs(extensions) do
       if allowed_ext == ext then
+        print(string.format("[DEBUG] Match found! Extension '%s' is allowed", ext))
         return true
       end
     end
+  else
+    print("[DEBUG] No extension found")
   end
   
+  print("[DEBUG] No matching extension found, opening with OS")
   return false
 end
 
